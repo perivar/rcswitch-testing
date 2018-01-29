@@ -71,63 +71,13 @@ void loop()
 
     // Nexa repeats 10 times.
     // Everflourish repeates only 2 times.
+    mySwitch.setRepeatTransmit(10);
     const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
     Serial.print("Sending ");
     Serial.print(strlen(nexaCode));
     Serial.print(" bits.");
     Serial.println();
-    send(nexaCode, 10);
+    mySwitch.send(nexaCode);
 
-    delay(5000);
-}
-
-void send(const char *sBitString, unsigned int repeatCount)
-{
-
-#if not defined(RCSwitchDisableReceiving)
-    // make sure the receiver is disabled while we transmit
-    int nReceiverInterrupt_backup = mySwitch.getReceiverInterrupt();
-    if (nReceiverInterrupt_backup != -1)
-    {
-        mySwitch.disableReceive();
-    }
-#endif
-
-    RCSwitch::Protocol protocol = mySwitch.getProtocol();
-
-    for (int nRepeat = 0; nRepeat < repeatCount; nRepeat++)
-    {
-        // transmit sync bits at the beginning
-        if (protocol.sync.high > 0 && protocol.sync.low > 0)
-        {
-            mySwitch.transmit(protocol.sync);
-        }
-
-        // transmit the data bits
-        for (const char *p = sBitString; *p; p++)
-        {
-            if (*p != '0')
-            {
-                mySwitch.transmit(protocol.one);
-            }
-            else
-            {
-                mySwitch.transmit(protocol.zero);
-            }
-        }
-
-        // transmit the pause bits at the end
-        mySwitch.transmit(protocol.pause);
-    }
-
-    // Disable transmit after sending (i.e., for inverted protocols)
-    digitalWrite(txPin, LOW);
-
-#if not defined(RCSwitchDisableReceiving)
-    // enable receiver again if we just disabled it
-    if (nReceiverInterrupt_backup != -1)
-    {
-        mySwitch.enableReceive(nReceiverInterrupt_backup);
-    }
-#endif
+    delay(10000);
 }
