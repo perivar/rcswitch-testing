@@ -72,35 +72,17 @@ void loop()
     // Nexa repeats 10 times.
     // Everflourish repeates only 2 times.
     const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
+    Serial.print("Sending ");
+    Serial.print(strlen(nexaCode));
+    Serial.print(" bits.");
+    Serial.println();
     send(nexaCode, 10);
+
     delay(5000);
 }
 
-void sendChunk(unsigned long code, unsigned int length, RCSwitch::Protocol protocol)
+void send(const char *sBitString, unsigned int repeatCount)
 {
-    //Serial.print(RCSwitch::dec2binWzerofill(code, length));
-    for (int i = length - 1; i >= 0; i--)
-    {
-        if (code & (1L << i))
-            mySwitch.transmit(protocol.one);
-        else
-            mySwitch.transmit(protocol.zero);
-    }
-}
-
-void send(const char *sCodeWord, unsigned int repeatCount)
-{
-    const unsigned int chunkBitSize = sizeof(unsigned long) * 8; // 32 bits
-    unsigned long code = 0;
-    unsigned int length = 0;
-    RCSwitch::Protocol protocol = mySwitch.getProtocol();
-
-    /*
-    Serial.print("Sending ");
-    Serial.print(strlen(sCodeWord));
-    Serial.print(" bits.");
-    Serial.println();
-    */
 
 #if not defined(RCSwitchDisableReceiving)
     // make sure the receiver is disabled while we transmit
@@ -110,8 +92,8 @@ void send(const char *sCodeWord, unsigned int repeatCount)
         mySwitch.disableReceive();
     }
 #endif
-    // Disable transmit after sending (i.e., for inverted protocols)
-    digitalWrite(txPin, LOW);
+
+    RCSwitch::Protocol protocol = mySwitch.getProtocol();
 
     for (int nRepeat = 0; nRepeat < repeatCount; nRepeat++)
     {
@@ -121,35 +103,18 @@ void send(const char *sCodeWord, unsigned int repeatCount)
             mySwitch.transmit(protocol.sync);
         }
 
-        // transmit the data bits in chunks
-        for (const char *p = sCodeWord; *p; p++)
+        // transmit the data bits
+        for (const char *p = sBitString; *p; p++)
         {
-            if (length < chunkBitSize)
+            if (*p != '0')
             {
-                code <<= 1L;
-                if (*p != '0')
-                {
-                    code |= 1L;
-                }
-                length++;
+                mySwitch.transmit(protocol.one);
             }
             else
             {
-                // transmit data bits
-                sendChunk(code, length, protocol);
-
-                // reset and add last bit
-                length = 0;
-                code = 0;
-                if (*p != '0')
-                {
-                    code |= 1L;
-                }
-                length++;
+                mySwitch.transmit(protocol.zero);
             }
         }
-        // transmit remaining data bits
-        sendChunk(code, length, protocol);
 
         // transmit the pause bits at the end
         mySwitch.transmit(protocol.pause);
