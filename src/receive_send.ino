@@ -76,14 +76,14 @@ void loop()
     // disable repeats and send one long after eachother
     mySwitch.setRepeatTransmit(1);
 
-    const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
-    send(nexaCode, 10);
-    delay(5000);
-}
+    //const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
+    //send(nexaCode, 10);
+    //delay(5000);
+} 
 
 void sendChunk(unsigned long code, unsigned int length, RCSwitch::Protocol protocol)
 {
-    //Serial.print(mySwitch.dec2binWzerofill(code, length));
+    Serial.print(RCSwitch::dec2binWzerofill(code, length));
     for (int i = length - 1; i >= 0; i--)
     {
         if (code & (1L << i))
@@ -148,7 +148,7 @@ void send(const char *sCodeWord, unsigned int repeatCount)
         sendChunk(code, length, protocol);
 
         // transmit sync at the end
-        mySwitch.transmit(protocol.syncFactor);
+        mySwitch.transmit(protocol.pause);
     }
 
     // Disable transmit after sending (i.e., for inverted protocols)
