@@ -60,7 +60,7 @@ void loop()
 
         Serial.print("Raw bitdata: ");
         char *rawBits = mySwitch.getReceivedRawBits();
-        for (unsigned int i = 0; i < mySwitch.getReceivedBitlength() - 1; i++)
+        for (unsigned int i = 0; i < mySwitch.getReceivedBitlength(); i++)
         {
             Serial.print(rawBits[i]);
         }
@@ -71,19 +71,14 @@ void loop()
 
     // Nexa repeats 10 times.
     // Everflourish repeates only 2 times.
-
-    // split binary string into longs
-    // disable repeats and send one long after eachother
-    mySwitch.setRepeatTransmit(1);
-
-    //const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
-    //send(nexaCode, 10);
-    //delay(5000);
-} 
+    const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
+    send(nexaCode, 10);
+    delay(5000);
+}
 
 void sendChunk(unsigned long code, unsigned int length, RCSwitch::Protocol protocol)
 {
-    Serial.print(RCSwitch::dec2binWzerofill(code, length));
+    //Serial.print(RCSwitch::dec2binWzerofill(code, length));
     for (int i = length - 1; i >= 0; i--)
     {
         if (code & (1L << i))
@@ -100,10 +95,12 @@ void send(const char *sCodeWord, unsigned int repeatCount)
     unsigned int length = 0;
     RCSwitch::Protocol protocol = mySwitch.getProtocol();
 
+    /*
     Serial.print("Sending ");
     Serial.print(strlen(sCodeWord));
     Serial.print(" bits.");
     Serial.println();
+    */
 
 #if not defined(RCSwitchDisableReceiving)
     // make sure the receiver is disabled while we transmit
@@ -118,6 +115,13 @@ void send(const char *sCodeWord, unsigned int repeatCount)
 
     for (int nRepeat = 0; nRepeat < repeatCount; nRepeat++)
     {
+        // transmit sync bits at the beginning
+        if (protocol.sync.high > 0 && protocol.sync.low > 0)
+        {
+            mySwitch.transmit(protocol.sync);
+        }
+
+        // transmit the data bits in chunks
         for (const char *p = sCodeWord; *p; p++)
         {
             if (length < chunkBitSize)
@@ -131,7 +135,7 @@ void send(const char *sCodeWord, unsigned int repeatCount)
             }
             else
             {
-                // transmit bits
+                // transmit data bits
                 sendChunk(code, length, protocol);
 
                 // reset and add last bit
@@ -144,10 +148,10 @@ void send(const char *sCodeWord, unsigned int repeatCount)
                 length++;
             }
         }
-        // transmit bits
+        // transmit remaining data bits
         sendChunk(code, length, protocol);
 
-        // transmit sync at the end
+        // transmit the pause bits at the end
         mySwitch.transmit(protocol.pause);
     }
 
