@@ -70,7 +70,7 @@ void loop()
     // Nexa repeats 10 times.
     mySwitch.setRepeatTransmit(10);
     const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
-    Serial.print("Sending ");
+    Serial.print("Sending Nexa: ");
     Serial.print(strlen(nexaCode));
     Serial.print(" bits.");
     Serial.println();
@@ -81,20 +81,20 @@ void loop()
     // 8 = Nexa
     // 9 = Everflourish
     mySwitch.setProtocol(9);
-    // Everflourish repeates only 2 times.
-    mySwitch.setRepeatTransmit(2);
+    // Everflourish repeates only 4 times.
+    mySwitch.setRepeatTransmit(4);
     const char *everflourish4On = "0000011010100110100101100110010110101010100110101010";
-    Serial.print("Sending ");
-    Serial.print(strlen(nexaCode));
+    Serial.print("Sending 4 ON: ");
+    Serial.print(strlen(everflourish4On));
     Serial.print(" bits.");
     Serial.println();
     mySwitch.send(everflourish4On);
 
     delay(2000);
 
-    const char *everflourish4Off = "0000011010100110100101100110010110101010100110011001";
-    Serial.print("Sending ");
-    Serial.print(strlen(nexaCode));
+    const char *everflourish4Off = "0000011010100110100101100110010110101010100101010101";
+    Serial.print("Sending 4 OFF: ");
+    Serial.print(strlen(everflourish4Off));
     Serial.print(" bits.");
     Serial.println();
     mySwitch.send(everflourish4Off);
