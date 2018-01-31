@@ -29,11 +29,6 @@ void setup()
     // Transmitter is connected to Arduino Pin #10
     mySwitch.enableTransmit(txPin);
 
-    // Optional set protocol (default is 1, will work for most outlets)
-    // 8 = Nexa
-    // 9 = Everflourish
-    mySwitch.setProtocol(8);
-
     Serial.println("[+] Listening");
 }
 
@@ -69,8 +64,10 @@ void loop()
         mySwitch.resetAvailable();
     }
 
+    // 8 = Nexa
+    // 9 = Everflourish
+    mySwitch.setProtocol(8);
     // Nexa repeats 10 times.
-    // Everflourish repeates only 2 times.
     mySwitch.setRepeatTransmit(10);
     const char *nexaCode = "1001100101101010100101101010011001011001100110100110010110101010";
     Serial.print("Sending ");
@@ -79,5 +76,28 @@ void loop()
     Serial.println();
     mySwitch.send(nexaCode);
 
-    delay(10000);
+    delay(1000);
+
+    // 8 = Nexa
+    // 9 = Everflourish
+    mySwitch.setProtocol(9);
+    // Everflourish repeates only 2 times.
+    mySwitch.setRepeatTransmit(2);
+    const char *everflourish4On = "0000011010100110100101100110010110101010100110101010";
+    Serial.print("Sending ");
+    Serial.print(strlen(nexaCode));
+    Serial.print(" bits.");
+    Serial.println();
+    mySwitch.send(everflourish4On);
+
+    delay(2000);
+
+    const char *everflourish4Off = "0000011010100110100101100110010110101010100110011001";
+    Serial.print("Sending ");
+    Serial.print(strlen(nexaCode));
+    Serial.print(" bits.");
+    Serial.println();
+    mySwitch.send(everflourish4Off);
+
+    delay(5000);
 }
