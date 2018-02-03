@@ -19,7 +19,7 @@ int rxPin = 2;
 int txPin = 10;
 
 unsigned long previousMillis = 0;
-const long waitInterval = 8000;
+const long waitInterval = 15000;
 
 void setup()
 {
@@ -68,8 +68,11 @@ void loop()
     }
 
     unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= waitInterval)
+    if (currentMillis - previousMillis > waitInterval)
     {
+        // save the last time you entered this routine
+        previousMillis = currentMillis;
+
         // 8 = Nexa
         // 9 = Everflourish
         mySwitch.setProtocol(8);
